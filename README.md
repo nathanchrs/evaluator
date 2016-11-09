@@ -21,3 +21,4 @@ Pre-requisite: GCC, GNU Make
 
 - Kasus 1+-5 masih diperbolehkan, cek apakah seharusnya boleh atau tidak
 - Angka dengan awalan 0 masih diperbolehkan (ketika di-parse, awalan 0 hilang), cek apakah diperbolehkan
+- Abaikan whitespace antara operator
