@@ -41,7 +41,7 @@ EvalResult add(const EvalResult op1, const EvalResult op2) {
 	} else if (op1.resultType == FRACTIONAL && op2.resultType == INTEGRAL) {
 		return fractionalResult(op1.fractionalValue + (double) op2.integralValue);
 	} else if (op1.resultType == INTEGRAL && op2.resultType == FRACTIONAL) {
-		return fractionalResult((double) op1.fractionalValue + op2.fractionalValue);
+		return fractionalResult((double) op1.integralValue + op2.fractionalValue);
 	} else {
 		return fractionalResult(op1.fractionalValue - op2.fractionalValue);
 	}
@@ -56,7 +56,7 @@ EvalResult subtract(const EvalResult op1, const EvalResult op2) {
 	} else if (op1.resultType == FRACTIONAL && op2.resultType == INTEGRAL) {
 		return fractionalResult(op1.fractionalValue - (double) op2.integralValue);
 	} else if (op1.resultType == INTEGRAL && op2.resultType == FRACTIONAL) {
-		return fractionalResult((double) op1.fractionalValue - op2.fractionalValue);
+		return fractionalResult((double) op1.integralValue - op2.fractionalValue);
 	} else {
 		return fractionalResult(op1.fractionalValue - op2.fractionalValue);
 	}
@@ -71,7 +71,7 @@ EvalResult multiply(const EvalResult op1, const EvalResult op2) {
 	} else if (op1.resultType == FRACTIONAL && op2.resultType == INTEGRAL) {
 		return fractionalResult(op1.fractionalValue * (double) op2.integralValue);
 	} else if (op1.resultType == INTEGRAL && op2.resultType == FRACTIONAL) {
-		return fractionalResult((double) op1.fractionalValue * op2.fractionalValue);
+		return fractionalResult((double) op1.integralValue * op2.fractionalValue);
 	} else {
 		return fractionalResult(op1.fractionalValue * op2.fractionalValue);
 	}
@@ -84,11 +84,15 @@ EvalResult divide(const EvalResult op1, const EvalResult op2) {
 	if (op2.resultType == FRACTIONAL && (op2.fractionalValue == 0.0 || op2.fractionalValue == -0.0)) return divisionErrorResult();
 
 	if (op1.resultType == INTEGRAL && op2.resultType == INTEGRAL) {
-		return integralResult(op1.integralValue / op2.integralValue);
+		if (op1.integralValue % op2.integralValue == 0) {
+			return integralResult(op1.integralValue / op2.integralValue);
+		} else {
+			return fractionalResult((double) op1.integralValue / (double) op2.integralValue);
+		}
 	} else if (op1.resultType == FRACTIONAL && op2.resultType == INTEGRAL) {
 		return fractionalResult(op1.fractionalValue / (double) op2.integralValue);
 	} else if (op1.resultType == INTEGRAL && op2.resultType == FRACTIONAL) {
-		return fractionalResult((double) op1.fractionalValue / op2.fractionalValue);
+		return fractionalResult((double) op1.integralValue / op2.fractionalValue);
 	} else {
 		return fractionalResult(op1.fractionalValue / op2.fractionalValue);
 	}
