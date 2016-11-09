@@ -80,50 +80,62 @@ EvalResult factor(const char *input, size_t *pos, const size_t end) {
 	}
 }
 
+// term -> term*factor | term/factor | factor
+// Modified to factor_((*|/)_factor)* iteration to prevent left-recursion and keep left-associaticity
 EvalResult term(const char *input, size_t *pos, const size_t end) {
 	EvalResult res1 = factor(input, pos, end);
 	if (isError(res1)) return res1;
 
-	if (*pos <= end && input[*pos] == '*') { // factor*term
-		(*pos)++;
+	EvalResult resAccumulator = res1;
+	while(1) {
+		if (*pos <= end && input[*pos] == '*') {
+			(*pos)++;
 
-		EvalResult res2 = term(input, pos, end);
-		if (isError(res2)) return res2;
-		return multiply(res1, res2);
+			EvalResult res2 = factor(input, pos, end);
+			if (isError(res2)) resAccumulator = res2;
+			resAccumulator = multiply(resAccumulator, res2);
 
-	} else if (*pos <= end && input[*pos] == '/') { // factor/term
-		(*pos)++;
+		} else if (*pos <= end && input[*pos] == '/') {
+			(*pos)++;
 
-		EvalResult res2 = term(input, pos, end);
-		if (isError(res2)) return res2;
-		return divide(res1, res2);
+			EvalResult res2 = factor(input, pos, end);
+			if (isError(res2)) resAccumulator = res2;
+			resAccumulator = divide(resAccumulator, res2);
 
-	} else {
-		return res1; // factor
+		} else {
+			break;
+		}
 	}
+	return resAccumulator;
 }
 
+// expression -> expression+term | expression-term | term
+// Modified to term_((+|-)_term)*  iteration to prevent left-recursion and keep left-associaticity
 EvalResult expression(const char *input, size_t *pos, const size_t end) {
 	EvalResult res1 = term(input, pos, end);
 	if (isError(res1)) return res1;
 
-	if (*pos <= end && input[*pos] == '+') { // term+expression
-		(*pos)++;
+	EvalResult resAccumulator = res1;
+	while(1) {
+		if (*pos <= end && input[*pos] == '+') {
+			(*pos)++;
 
-		EvalResult res2 = expression(input, pos, end);
-		if (isError(res2)) return res2;
-		return add(res1, res2);
+			EvalResult res2 = term(input, pos, end);
+			if (isError(res2)) resAccumulator = res2;
+			resAccumulator = add(resAccumulator, res2);
 
-	} else if (*pos <= end && input[*pos] == '-') { // term-expression
-		(*pos)++;
+		} else if (*pos <= end && input[*pos] == '-') {
+			(*pos)++;
 
-		EvalResult res2 = expression(input, pos, end);
-		if (isError(res2)) return res2;
-		return subtract(res1, res2);
+			EvalResult res2 = term(input, pos, end);
+			if (isError(res2)) resAccumulator = res2;
+			resAccumulator = subtract(resAccumulator, res2);
 
-	} else {
-		return res1; // term
+		} else {
+			break;
+		}
 	}
+	return resAccumulator;
 }
 
 EvalResult evaluate(const char *input) {
