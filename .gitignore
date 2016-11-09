@@ -1,5 +1,5 @@
 # Build result
-bin
+bin/*
 !bin/.gitkeep
 
 # Sublime Text files
