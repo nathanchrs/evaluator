@@ -1,8 +1,7 @@
-
 #ifndef EVALRESULT_H
 #define EVALRESULT_H
 
-#include <string.h>
+#include <stdlib.h>
 
 typedef enum {
 	INTEGRAL, FRACTIONAL, SYNTAX_ERROR, DIVISION_ERROR

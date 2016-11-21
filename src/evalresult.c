@@ -1,4 +1,3 @@
-
 #include "evalresult.h"
 
 inline unsigned char isError(EvalResult res) {

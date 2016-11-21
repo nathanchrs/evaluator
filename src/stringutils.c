@@ -1,10 +1,10 @@
 #include "stringutils.h"
-#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
-/* Read string from the input file from the current position until the delimiter character.
-   The resulting string is dynamically allocated. Returns null on allocation failure. */
+/* Baca file dari posisi saat ini hingga terbaca sebuah karakter delimiter.
+   String yang dihasilkan dialokasikan secara dinamis. Mengembalikan NULL jika alokasi gagal. */
 char* StringUtils_scan(FILE *fin, const char delim) {
 	char inp;
 	size_t len = 0;
@@ -18,7 +18,7 @@ char* StringUtils_scan(FILE *fin, const char delim) {
 		str[len] = inp;
 		len++;
 
-		// Resize if actual length + 1 exceeds capacity
+		// Perbesar kapasitas string jika ukuran akan melebihi kapasitas
 		if (len == capacity) {
 			str = realloc(str, sizeof(char) * (capacity + STRING_ALLOC_BLOCK_SIZE));
 			if (!str) return str;
@@ -26,39 +26,21 @@ char* StringUtils_scan(FILE *fin, const char delim) {
 		}
 	}
 
-	// Set ending null character
+	// Set karakter kosong di akhir
 	str[len] = 0;
 
-	// Resize to exact string length, then return
+	// Ubah kapasitas string menjadi sesuai dengan ukurannya
 	return realloc(str, sizeof(char) * (len + 1));
 }
 
-/* Returns a pointer to a clone of string str
-   The resulting string is dynamically allocated. Returns null on allocation failure. */
-char* StringUtils_clone(const char *str) {
-	char *res = malloc(sizeof(char) * (strlen(str) + 1));
-	if (res) strcpy(res, str);
-	return res;
-}
-
-/* Creates a new string containing the concatenation of str1 and str2. Returns null on allocation failure. */
-char* StringUtils_concat(const char *str1, const char *str2) {
-	size_t slen1 = strlen(str1);
-	size_t slen2 = strlen(str2);
-	char *res = malloc(sizeof(char) * (slen1 + slen2 + 1));
-	if (res) {
-		strcpy(res, str2);
-		strcpy(res + slen1, str2);
-	}
-	return res;
-}
-
+/* Dealokasi string */
 void StringUtils_deallocate(char *str) {
 	free(str);
 }
 
-/* Case-insensitive string comparison,
-   returns <0 if first character that does not match in str1 < str2, 0 if both strings are equal, or >0 otherwise */
+/* Perbandingan string yang tidak memperhatikan huruf besar/kecil,
+   mengembalikan nilai < 0 jika karakter pertama yang tidak cocok di str1 < str2,
+   0 jika kedua string sama, atau > 0 jika tidak keduanya. */
 int StringUtils_strcmpi(const char *str1, const char *str2) {
 	const char *p1 = str1;
 	const char *p2 = str2;
@@ -70,17 +52,4 @@ int StringUtils_strcmpi(const char *str1, const char *str2) {
 		p2++;
 	} while (c1 == c2 && c1 != 0);
 	return c1-c2;
-}
-
-/* Checks whether all characters in a string (not including ending null byte) satisfies a condition.
-   checker is a pointer to a function which accepts an integer representing a character,
-   and outputs a non-zero integer if the character satisfies the condition,
-   or 0 otherwise (e.q. ctype's isdigit, isspace, islower functions. */
-unsigned char StringUtils_check(const char *str, int (*checker)(int)) {
-	const char *p = str;
-	while ((*p) != 0) {
-		if (!(*checker)((int) *p)) return 1;
-		p++;
-	}
-	return 0;
 }

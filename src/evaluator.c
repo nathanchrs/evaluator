@@ -1,13 +1,18 @@
 #include <string.h>
 #include "evaluator.h"
 
+/* Pengaturan kompilasi: menentukan karakter koma (pembatas desimal) */
 #define DECIMAL_POINT '.'
 
+/* Pengaturan kompilasi: jika terdefinisi, maka operator '+' uner diperbolehkan */
 #define ALLOW_UNARY_POSITIVE_OPERATOR
+
+/* Pengaturan kompilasi: jika terdefinisi, maka operator uner '+' dan/atau '-' yang tepat berurutan diperbolehkan */
 #define ALLOW_CONSECUTIVE_UNARY_OPERATORS
 
 EvalResult expression(const char *input, size_t *pos, size_t end);
 
+/* Terminal digit */
 EvalResult digit(const char *input, size_t *pos, size_t end) {
 	if (*pos <= end && '0' <= input[*pos] && input[*pos] <= '9') {
 		return integralResult(input[(*pos)++] - '0');
@@ -16,18 +21,20 @@ EvalResult digit(const char *input, size_t *pos, size_t end) {
 	}
 }
 
+/* Fractional -> Digit | Digit_Fractional */
 EvalResult fractional(const char *input, size_t *pos, size_t end) {
 	EvalResult res1 = digit(input, pos, end);
 	if (isError(res1)) return res1;
 
 	EvalResult res2 = fractional(input, pos, end);
 	if (isError(res2)) {
-		return fractionalResult(0.1 * (double) res1.integralValue); // digit
+		return fractionalResult(0.1 * (double) res1.integralValue); // Digit
 	}
 
-	return fractionalResult(0.1 * ((double) res1.integralValue + res2.fractionalValue)); // digit_fractional
+	return fractionalResult(0.1 * ((double) res1.integralValue + res2.fractionalValue)); // Digit_Fractional
 }
 
+/* Integer -> Digit | Digit_Integer */
 EvalResult integer(const char *input, size_t *pos, size_t end) {
 	size_t initialPos = *pos;
 
@@ -36,16 +43,17 @@ EvalResult integer(const char *input, size_t *pos, size_t end) {
 
 	EvalResult res2 = integer(input, pos, end);
 	if (isError(res2)) {
-		return integralResult(res1.integralValue); // digit
+		return integralResult(res1.integralValue); // Digit
 	}
 
 	long long exp = 1;
 	int i;
 	for (i = 0; i < (*pos)-initialPos-1; i++) exp *= 10;
 
-	return integralResult(res1.integralValue * exp + res2.integralValue); // digit_integer
+	return integralResult(res1.integralValue * exp + res2.integralValue); // Digit_Integer
 }
 
+/* Number -> Integer.Fractional | Integer */
 EvalResult number(const char *input, size_t *pos, size_t end) {
 	EvalResult res1 = integer(input, pos, end);
 	if (isError(res1)) return res1;
@@ -54,45 +62,47 @@ EvalResult number(const char *input, size_t *pos, size_t end) {
 		(*pos)++;
 		EvalResult res2 = fractional(input, pos, end);
 		if (isError(res2)) return res2;
-		return fractionalResult((double) res1.integralValue + res2.fractionalValue); // integer.fractional
+		return fractionalResult((double) res1.integralValue + res2.fractionalValue); // Integer.Fractional
 	}
 	
-	return integralResult(res1.integralValue); // integer
+	return integralResult(res1.integralValue); // Integer
 }
 
+/* factorWithoutUnary -> (Expression) | Number */
 EvalResult factorWithoutUnary(const char *input, size_t *pos, size_t end) {
 	if (*pos <= end && input[*pos] == '(') {
 		(*pos)++;
 		EvalResult res = expression(input, pos, end);
 		if (*pos <= end && input[*pos] == ')') {
 			(*pos)++;
-			return res; // (expression)
+			return res; // (Expression)
 		} else {
-			return syntaxErrorResult(*pos); // missing ending parentheses
+			return syntaxErrorResult(*pos); // Tidak ada kurung tutup yang cocok
 		}
 	} else {
 		return number(input, pos, end); // number
 	}
 }
 
+/* factor -> -factor | +factor | factorWithoutUnary */
 EvalResult factor(const char *input, size_t *pos, size_t end) {
-	if (*pos <= end && input[*pos] == '-') { // unary negative operator
+	if (*pos <= end && input[*pos] == '-') { // Operator uner negatif
 		(*pos)++;
 		return multiply(factor(input, pos, end), integralResult(-1));
 	}
 
 #ifdef ALLOW_UNARY_POSITIVE_OPERATOR
-	else if (*pos <= end && input[*pos] == '+') { // unary positive operator
+	else if (*pos <= end && input[*pos] == '+') { // Operator uner positif
 		(*pos)++;
 		return factor(input, pos, end);
 	}
 #endif
 
-	return factorWithoutUnary(input, pos, end);
+	return factorWithoutUnary(input, pos, end); // FactorWithoutUnary
 }
 
-// term -> term*factor | term/factor | factor
-// Modified to factor_((*|/)_factor)* iteration to prevent left-recursion and keep left-associaticity
+/* Term -> Term*Factor | Term/Factor | Factor
+   Dimodifikasi menjadi Factor_((*|/)_Factor)* untuk mencegah rekursi tanpa batas dan mempertahankan asosiativitas-kiri */
 EvalResult term(const char *input, size_t *pos, size_t end) {
 	EvalResult res1 = factor(input, pos, end);
 	if (isError(res1)) return res1;
@@ -120,8 +130,8 @@ EvalResult term(const char *input, size_t *pos, size_t end) {
 	return resAccumulator;
 }
 
-// expression -> expression+term | expression-term | term
-// Modified to term_((+|-)_term)*  iteration to prevent left-recursion and keep left-associaticity
+/* Expression -> Expression+Term | Expression-Term | Term
+   Dimodifikasi menjadi Term_((+|-)_Term)* untuk mencegah rekursi tanpa batas dan mempertahankan asosiativitas-kiri */
 EvalResult expression(const char *input, size_t *pos, size_t end) {
 	EvalResult res1 = term(input, pos, end);
 	if (isError(res1)) return res1;
@@ -149,11 +159,13 @@ EvalResult expression(const char *input, size_t *pos, size_t end) {
 	return resAccumulator;
 }
 
+/* Fungsi pembungkus untuk mempermudah pemanggilan; menambahkan beberapa pengecekan awal dan akhir */
 EvalResult evaluate(const char *input) {
 	size_t pos = 0;
 	size_t length = strlen(input);
 
 	#ifndef ALLOW_CONSECUTIVE_UNARY_OPERATORS
+		// Menggagalkan evaluasi apabila terdapat operator uner '+' dan/atau '-' yang tepat bersebelahan
 		if (length > 1) {
 			size_t i;
 			for (i = 1; i < length; i++) {
@@ -166,7 +178,7 @@ EvalResult evaluate(const char *input) {
 
 	EvalResult res = expression(input, &pos, length);
 	if (pos != length) {
-		return syntaxErrorResult(pos); // there are still unconsumed input characters remaining
+		return syntaxErrorResult(pos); // Masih ada karakter yang belum terproses atau berlebih
 	}
 	return res;
 }

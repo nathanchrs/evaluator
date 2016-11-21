@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include "stringutils.h"
 #include "evaluator.h"
@@ -6,8 +5,13 @@
 
 int main() {
 
-	printf("\nEVALUATOR - by nathanchrs & leecopper15\n");
-	printf("Enter an arithmetic expression or 'quit' to exit.\n\n");
+	printf("\n");
+	printf("EVALUATOR EKSPRESI ARITMATIKA\n");
+	printf("=============================\n");
+	printf("Tugas 2 IF2220 Teori Bahasa Formal dan Otomata, November 2016\n");
+	printf("13515001 - Jonathan Christopher\n");
+	printf("13515079 - Nicholas Thie\n");
+	printf("Masukkan ekspresi aritmatika atau [exit] untuk keluar.\n\n");
 	
 	while (1) {
 		printf(">> ");
@@ -15,7 +19,7 @@ int main() {
 		char *input;
 		input = StringUtils_scan(stdin, '\n');
 
-		if (StringUtils_strcmpi(input, "quit") == 0 || StringUtils_strcmpi(input, "exit") == 0) break;
+		if (StringUtils_strcmpi(input, "keluar") == 0 || StringUtils_strcmpi(input, "exit") == 0) break;
 
 		EvalResult res = evaluate(input);
 		if (res.resultType == INTEGRAL) {
