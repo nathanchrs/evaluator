@@ -1,25 +1,25 @@
 
 #include "evalresult.h"
 
-inline unsigned char isError(const EvalResult res) {
+inline unsigned char isError(EvalResult res) {
 	return res.resultType == SYNTAX_ERROR || res.resultType == DIVISION_ERROR;
 }
 
-inline EvalResult integralResult(const long long value) {
+inline EvalResult integralResult(long long value) {
 	EvalResult res;
 	res.resultType = INTEGRAL;
 	res.integralValue = value;
 	return res;
 }
 
-inline EvalResult fractionalResult(const double value) {
+inline EvalResult fractionalResult(double value) {
 	EvalResult res;
 	res.resultType = FRACTIONAL;
 	res.fractionalValue = value;
 	return res;
 }
 
-inline EvalResult syntaxErrorResult(const size_t pos) {
+inline EvalResult syntaxErrorResult(size_t pos) {
 	EvalResult res;
 	res.resultType = SYNTAX_ERROR;
 	res.errorPos = pos;
@@ -32,7 +32,7 @@ inline EvalResult divisionErrorResult() {
 	return res;
 }
 
-EvalResult add(const EvalResult op1, const EvalResult op2) {
+EvalResult add(EvalResult op1, EvalResult op2) {
 	if (isError(op1)) return op1;
 	if (isError(op2)) return op2;
 
@@ -47,7 +47,7 @@ EvalResult add(const EvalResult op1, const EvalResult op2) {
 	}
 }
 
-EvalResult subtract(const EvalResult op1, const EvalResult op2) {
+EvalResult subtract(EvalResult op1, EvalResult op2) {
 	if (isError(op1)) return op1;
 	if (isError(op2)) return op2;
 
@@ -62,7 +62,7 @@ EvalResult subtract(const EvalResult op1, const EvalResult op2) {
 	}
 }
 
-EvalResult multiply(const EvalResult op1, const EvalResult op2) {
+EvalResult multiply(EvalResult op1, EvalResult op2) {
 	if (isError(op1)) return op1;
 	if (isError(op2)) return op2;
 
@@ -77,7 +77,7 @@ EvalResult multiply(const EvalResult op1, const EvalResult op2) {
 	}
 }
 
-EvalResult divide(const EvalResult op1, const EvalResult op2) {
+EvalResult divide(EvalResult op1, EvalResult op2) {
 	if (isError(op1)) return op1;
 	if (isError(op2)) return op2;
 	if (op2.resultType == INTEGRAL && op2.integralValue == 0) return divisionErrorResult();

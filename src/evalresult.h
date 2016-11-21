@@ -18,22 +18,22 @@ typedef struct {
 
 #include "evalresult.h"
 
-inline unsigned char isError(const EvalResult res);
+inline unsigned char isError(EvalResult res);
 
-inline EvalResult integralResult(const long long value);
+inline EvalResult integralResult(long long value);
 
-inline EvalResult fractionalResult(const double value);
+inline EvalResult fractionalResult(double value);
 
-inline EvalResult syntaxErrorResult(const size_t pos);
+inline EvalResult syntaxErrorResult(size_t pos);
 
 inline EvalResult divisionErrorResult();
 
-EvalResult add(const EvalResult op1, const EvalResult op2);
+EvalResult add(EvalResult op1, EvalResult op2);
 
-EvalResult subtract(const EvalResult op1, const EvalResult op2);
+EvalResult subtract(EvalResult op1, EvalResult op2);
 
-EvalResult multiply(const EvalResult op1, const EvalResult op2);
+EvalResult multiply(EvalResult op1, EvalResult op2);
 
-EvalResult divide(const EvalResult op1, const EvalResult op2);
+EvalResult divide(EvalResult op1, EvalResult op2);
 
 #endif
