@@ -62,25 +62,35 @@
 
 		Selain implementasi CFG dan evaluasi ekspresi, terdapat beberapa fitur tambahan yang dimuat dalam program ini. Terdapat empat tipe hasil evaluasi ekspresi yang dikenali, yaitu bilangan bulat, bilangan desimal, \textit{syntax error}, serta \textit{division error} (terjadi jika ada pembagian dengan nol). Bilangan bulat disimpan dalam tipe \textit{integer} 64-bit, sedangkan bilangan desimal disimpan dalam tipe \textit{double-precision floating point}. Program sedapat mungkin melakukan evaluasi dalam tipe bilangan bulat dan menggunakan tipe \textit{floating-point} jika ada hasil yang memang tidak bulat. Hal ini dilakukan untuk sedapat mungkin mencegah ketidaktelitian perhitungan yang diakibatkan keterbatasan representasi \textit{floating-point}. Selain itu, jika terdapat \textit{syntax error}, program juga akan mencatat posisi karakter pertama yang mengakibatkan \textit{syntax error} untuk mempermudah pencarian kesalahan.
 
+		\noindent Terdapat beberapa aturan ekspresi aritmatika tambahan yang diasumsikan berlaku:
+
+		\begin{itemize}
+			\item Operator uner positif tidak boleh digunakan (dapat diatur dengan mendefinisikan makro \textit{ALLOW\_UNARY\_POSITIVE\_OPERATOR} di file \textit{evaluator.c}).
+			\item Operator uner tidak boleh konsekutif tanpa dipisahkan kurung (dapat diatur dengan mendefinisikan makro \textit{ALLOW\_CONSECUTIVE\_UNARY\_OPERATOR} di file \textit{evaluator.c}).
+			\item \textit{Leading zeroes} (digit 0 di depan suatu angka) diperbolehkan.
+			\item Urutan operasi dari operator yang prioritasnya sama adalah asosiatif kiri (dari kiri ke kanan).
+		\end{itemize}
+
 	\section{\textit{Context-Free Grammar}}
 
 		Berikut adalah tata bahasa bebas konteks (\textit{context-free grammar}) yang digunakan untuk memodelkan ekspresi aritmatika yang akan divalidasi dan dievaluasi:
 
-		\[G = (\{E, T, F, W, N, F, I\}, \{+, -, *, /, (, ), 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, .\}, P, E)\]
+		\[G = (\{E, T, F, W, N, F, I, D\}, \{+, -, *, /, (, ), 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, .\}, P, E)\]
 
-		dengan aturan produksi $P$ yang didefinisikan sebagai berikut:
+		\noindent dengan aturan produksi $P$ yang didefinisikan sebagai berikut:
 
 		\begin{align*}
 			E \quad & \rightarrow \quad E+T \; | \; E-T \; | \; T \\
 			T \quad & \rightarrow \quad T*F \; | \; T/F \; | \; F \\
-			F \quad & \rightarrow \quad -F \; | \; +F | W \\
+			F \quad & \rightarrow \quad -F \; | \; +F \; | \; W \\
 			W \quad & \rightarrow \quad (E) \; | \; N \\
 			N \quad & \rightarrow \quad I.F \; | \; I \\
 			F \quad & \rightarrow \quad D \; | \; DF \\
-			I \quad & \rightarrow \quad D \; | \; DI
+			I \quad & \rightarrow \quad D \; | \; DI \\
+			D \quad & \rightarrow \quad 0 \; | \; 1 \; | \; 2 \; | \; 3 \; | \; 4 \; | \; 5 \; | \; 6 \; | \; 7 \; | \; 8 \; | \; 9
 		\end{align*}
 
-		Setiap variabel dalam CFG tersebut merepresentasikan sebuah komponen ekspresi aritmatika:
+		\noindent Setiap variabel dalam CFG tersebut merepresentasikan sebuah komponen ekspresi aritmatika:
 
 		\begin{table}[H]
 			\centering
@@ -100,20 +110,43 @@
 
 	\section{\textit{Source Code}}
 
-		
+		\subsection{main.c}
+			\lstinputlisting[language=C]{../src/main.c}
+
+		\subsection{evaluator.h}
+			\lstinputlisting[language=C]{../src/evaluator.h}
+
+		\subsection{evaluator.c}
+			\lstinputlisting[language=C]{../src/evaluator.c}
+
+		\subsection{evaluator.h}
+			\lstinputlisting[language=C]{../src/evalresult.h}
+
+		\subsection{evalresult.c}
+			\lstinputlisting[language=C]{../src/evalresult.c}
+
+		\subsection{stringutils.h}
+			\lstinputlisting[language=C]{../src/stringutils.h}
+
+		\subsection{stringutils.c}
+			\lstinputlisting[language=C]{../src/stringutils.c}
 
 	\section{Contoh Interaksi dengan Program}
 
 		Berikut adalah contoh interaksi pengguna dengan program. Input pengguna digarisbawahi.
 
 		\begin{lstlisting}
+EVALUATOR EKSPRESI ARITMATIKA
+=============================
+Tugas 2 IF2220 Teori Bahasa Formal dan Otomata, November 2016
+13515001 - Jonathan Christopher
+13515079 - Nicholas Thie
+Masukkan ekspresi aritmatika atau [exit] untuk keluar.
 
-		...
-		
-Evaluator - Tugas II IF2220 Teori Bahasa Formal dan Automata
-============================================================
-
-
+>> __(-457.01+1280)*(35.7-11.0233)/(-6.1450)__
+-3304.910876
+>> __3*+-12/(57)__
+Syntax error at position 4.
 		\end{lstlisting}
 
 	\begin{thebibliography}{9}

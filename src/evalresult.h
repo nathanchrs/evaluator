@@ -14,7 +14,6 @@ typedef struct {
 	int errorPos;
 } EvalResult;
 
-
 #include "evalresult.h"
 
 inline unsigned char isError(EvalResult res);

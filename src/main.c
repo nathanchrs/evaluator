@@ -2,7 +2,6 @@
 #include "stringutils.h"
 #include "evaluator.h"
 
-
 int main() {
 
 	printf("\n");

@@ -5,10 +5,10 @@
 #define DECIMAL_POINT '.'
 
 /* Pengaturan kompilasi: jika terdefinisi, maka operator '+' uner diperbolehkan */
-#define ALLOW_UNARY_POSITIVE_OPERATOR
+// #define ALLOW_UNARY_POSITIVE_OPERATOR
 
 /* Pengaturan kompilasi: jika terdefinisi, maka operator uner '+' dan/atau '-' yang tepat berurutan diperbolehkan */
-#define ALLOW_CONSECUTIVE_UNARY_OPERATORS
+// #define ALLOW_CONSECUTIVE_UNARY_OPERATORS
 
 EvalResult expression(const char *input, size_t *pos, size_t end);
 
@@ -68,7 +68,7 @@ EvalResult number(const char *input, size_t *pos, size_t end) {
 	return integralResult(res1.integralValue); // Integer
 }
 
-/* factorWithoutUnary -> (Expression) | Number */
+/* FactorWithoutUnary -> (Expression) | Number */
 EvalResult factorWithoutUnary(const char *input, size_t *pos, size_t end) {
 	if (*pos <= end && input[*pos] == '(') {
 		(*pos)++;
@@ -84,7 +84,7 @@ EvalResult factorWithoutUnary(const char *input, size_t *pos, size_t end) {
 	}
 }
 
-/* factor -> -factor | +factor | factorWithoutUnary */
+/* Factor -> -Factor | +Factor | FactorWithoutUnary */
 EvalResult factor(const char *input, size_t *pos, size_t end) {
 	if (*pos <= end && input[*pos] == '-') { // Operator uner negatif
 		(*pos)++;
