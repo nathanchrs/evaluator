@@ -7,10 +7,10 @@ SOURCES=$(wildcard ./src/*.c)
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=./bin/evaluator
 
-.PHONY: all bin clean
+.PHONY: all bin doc clean
 
 
-all: bin
+all: bin doc
 
 bin: $(EXECUTABLE)
 

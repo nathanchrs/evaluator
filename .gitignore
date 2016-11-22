@@ -5,6 +5,10 @@ bin/*
 # Sublime Text files
 *.sublime-*
 
+# Latex temporary files
+*.log
+*.aux
+
 # Object files
 *.o
 *.ko

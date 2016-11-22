@@ -1,0 +1,129 @@
+\documentclass[a4paper,titlepage]{article}
+\usepackage[top=1in, bottom=1.25in, left=1.25in, right=1.25in]{geometry}
+
+\parskip=10pt
+
+\usepackage[scaled]{beramono}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsmath}
+
+\usepackage{listings}
+\lstset{
+	basicstyle=\footnotesize\ttfamily,
+	tabsize=4,
+	breaklines,
+	frame=single,
+	moredelim=[is][\underbar]{__}{__}
+}
+
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{booktabs}
+
+\renewcommand{\figurename}{Gambar}
+\renewcommand{\refname}{Referensi}
+
+\begin{document}
+
+	\title{Laporan Tugas II \\ IF2220 Teori Bahasa Formal dan Automata}
+	\author{
+			Jonathan Christopher \\
+			(13515001, K-01)
+		\and
+			Nicholas Thie \\
+			(13515079, K-01)
+	}
+	\maketitle
+
+	\section{Deskripsi Persoalan}
+
+		Dibutuhkan sebuah program untuk mengenali dan menghitung ekspresi aritmatika menggunakan tata bahasa bebas konteks (\textit{context-free grammar}). Bila diberikan sebuah ekspresi aritmatika, maka program harus bisa mengenali apakah ekspresi tersebut valid atau tidak (\textit{syntax error}). Jika ekspresi yang diberikan valid, maka program tersebut harus menghitung nilai dari ekspresi tersebut dengan mengubah terlebih dahulu setiap simbol terminal (angka) menjadi nilai numerik yang bersesuaian. Contoh ekspresi aritmatika yang valid adalah $(-457.01+1280)*(35.7-11.0233)/(-6.1450)$ (setelah dieksekusi akan menampilkan hasil perhitungan ekspresi tersebut yaitu $-3304.91)$. Contoh ekspresi tidak valid adalah $3*+-12/(57)$ (setelah dieksekusi akan ditampilkan pesan \textit{syntax error}).
+
+		\subsection{Batasan Masalah}
+
+		\begin{itemize}
+			\item Terminal terdiri dari karakter-karakter $\{+, -, *, /, (, ), 0..9, .\}$.
+			\item Operator terdiri dari $\{+, -, *, /, (, )\}$.
+			\item Ekspresi di dalam kurung dievaluasi terlebih dahulu, kemudian operator perkalian dan pembagian, baru sesudahnya operator penambahan dan pengurangan.
+			\item Operan terdiri dari bilangan bulat dan bilangan desimal positif atau negatif.
+			\item Program merupakan implementasi dari tata bahasa dan \textit{pushdown automata} yang dibuat terlebih dahulu (disain sendiri) menggunakan teori yang telah dipelajari.
+			\item Implementasi program menggunakan bahasa pemrograman prosedural C atau Pascal.
+		\end{itemize}
+
+	\section{Jawab Persoalan}
+
+		Untuk validasi sintaks dan perhitungan ekspresi aritmatika, digunakan CFG (\textit{context-free grammar}). Ekspresi aritmatika terlebih dahulu dimodelkan dalam \text{context-free grammar} tersebut. Karakter-karakter yang dierima dalam ekspresi, yaitu $\{+, -, *, /, (, ), 0..9, .\}$, menjadi simbol terminal dalam CFG yang dibuat. Selain simbol terminal, CFG tersebut juga mengandung sejumlah variabel yang merepresentasikan fungsi dari potongan-potongan ekspresi tertentu. Salah satu variabel melambangkan keseluruhan ekspresi aritmatika itu sendiri dan menjadi \textit{start symbol}. Eksekusi untuk validasi dan perhitungan akan selalu dimulai dengan variabel tersebut, lalu berlanjut ke sejumlah aturan produksi yang mendefinisikan tata bahasa ekspresi secara rekursif.
+
+		Implementasi \textit{parser} yang dibuat menggunakan metode rekursif, sehingga program yang dihasilkan strukturnya tidak jauh berbeda dengan CFG yang digunakan. Sebuah variabel dalam CFG diubah menjadi fungsi dalam program, yang dapat memanggil fungsi-fungsi lainnya yang melambangkan variabel lainnya sesuai aturan produksi CFG. Karakter terminal dalam CFG berarti program harus membaca karakter tersebut dari \textit{string} masukan. Akan tetapi, terdapat beberapa kriteria yang harus dipenuhi oleh CFG yang digunakan agar implementasi dengan metode rekursif ini dapat berjalan. Pertama, CFG tidak boleh ambigu, atau memiliki beberapa kemungkinan alur \textit{parsing}. Kedua, tidak boleh ada aturan produksi dalam CFG dimana suatu variabel mengandung dirinya sendiri sebelum variabel lain atau simbol terminal.
+
+		Sebuah CFG pada dasarnya hanya dapat digunakan untuk mengecek apakah suatu \textit{string} memenuhi aturan CFG tersebut atau tidak (dalam hal ini, validitas sintaks sebuah ekspresi aritmatika). Untuk dapat menghitung juga nilai hasil evaluasi suatu ekspresi aritmatika, dibutuhkan modifikasi pada program yang mengimplementasikannya. Selain dapat mem-\textit{parse} simbol terminal dan variabel, program yang dibuat juga dapat mengartikan nilai numerik simbol terminal yang berupa digit serta mengaitkannya dengan urutan dan makna yang benar tergantung pada simbol terminal operator yang ditemukan. Hasil evaluasi dikembalikan dalam \textit{return value} tiap fungsi yang merepresentasikan variabel dalam CFG. Selain itu, untuk mempertahankan urutan evaluasi yang asosiatif-kiri (untuk operator yang prioritasnya sama), terpaksa digunakan iterasi untuk bagian tersebut, bukan rekursi.
+
+		Selain implementasi CFG dan evaluasi ekspresi, terdapat beberapa fitur tambahan yang dimuat dalam program ini. Terdapat empat tipe hasil evaluasi ekspresi yang dikenali, yaitu bilangan bulat, bilangan desimal, \textit{syntax error}, serta \textit{division error} (terjadi jika ada pembagian dengan nol). Bilangan bulat disimpan dalam tipe \textit{integer} 64-bit, sedangkan bilangan desimal disimpan dalam tipe \textit{double-precision floating point}. Program sedapat mungkin melakukan evaluasi dalam tipe bilangan bulat dan menggunakan tipe \textit{floating-point} jika ada hasil yang memang tidak bulat. Hal ini dilakukan untuk sedapat mungkin mencegah ketidaktelitian perhitungan yang diakibatkan keterbatasan representasi \textit{floating-point}. Selain itu, jika terdapat \textit{syntax error}, program juga akan mencatat posisi karakter pertama yang mengakibatkan \textit{syntax error} untuk mempermudah pencarian kesalahan.
+
+	\section{\textit{Context-Free Grammar}}
+
+		Berikut adalah tata bahasa bebas konteks (\textit{context-free grammar}) yang digunakan untuk memodelkan ekspresi aritmatika yang akan divalidasi dan dievaluasi:
+
+		\[G = (\{E, T, F, W, N, F, I\}, \{+, -, *, /, (, ), 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, .\}, P, E)\]
+
+		dengan aturan produksi $P$ yang didefinisikan sebagai berikut:
+
+		\begin{align*}
+			E \quad & \rightarrow \quad E+T \; | \; E-T \; | \; T \\
+			T \quad & \rightarrow \quad T*F \; | \; T/F \; | \; F \\
+			F \quad & \rightarrow \quad -F \; | \; +F | W \\
+			W \quad & \rightarrow \quad (E) \; | \; N \\
+			N \quad & \rightarrow \quad I.F \; | \; I \\
+			F \quad & \rightarrow \quad D \; | \; DF \\
+			I \quad & \rightarrow \quad D \; | \; DI
+		\end{align*}
+
+		Setiap variabel dalam CFG tersebut merepresentasikan sebuah komponen ekspresi aritmatika:
+
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{@{}lll@{}}
+				\toprule
+				Variabel & Nama fungsi dalam program & Deskripsi \\ \midrule
+				E & expression 			& keseluruhan ekspresi aritmatika \\
+				T & term 				& ekspresi angka, hasil perkalian atau hasil pembagian \\
+				F & factor 				& ekspresi yang dapat menjadi bagian dari operasi biner \\
+				W & factorWithoutUnary 	& angka atau ekspresi aritmatika yang dibatasi kurung \\
+				N & number 				& bilangan bulat atau desimal tidak negatif \\
+				I & integer 			& bilangan bulat tidak negatif \\
+				F & fractional 			& urutan digit yang terletak di belakang koma \\
+				D & digit 				& sebuah karakter digit (0..9) \\
+			\end{tabular}
+		\end{table}
+
+	\section{\textit{Source Code}}
+
+		
+
+	\section{Contoh Interaksi dengan Program}
+
+		Berikut adalah contoh interaksi pengguna dengan program. Input pengguna digarisbawahi.
+
+		\begin{lstlisting}
+
+		...
+		
+Evaluator - Tugas II IF2220 Teori Bahasa Formal dan Automata
+============================================================
+
+
+		\end{lstlisting}
+
+	\begin{thebibliography}{9}
+
+		\bibitem{hopcroft13}
+		Hopcroft, John E.; Motwani, Rajeev; Ullman, Jeffrey D.
+		(2013).
+		\textit{Introduction to Automata Theory, Languages, and Computation (3rd ed.)}.
+		Pearson.
+
+	\end{thebibliography}
+
+\end{document}

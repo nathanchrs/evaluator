@@ -177,8 +177,10 @@ EvalResult evaluate(const char *input) {
 	#endif
 
 	EvalResult res = expression(input, &pos, length);
+
+	// Menggagalkan evaluasi apabila masih ada karakter yang belum terproses atau berlebih
 	if (pos != length) {
-		return syntaxErrorResult(pos); // Masih ada karakter yang belum terproses atau berlebih
+		return syntaxErrorResult(pos);
 	}
 	return res;
 }
