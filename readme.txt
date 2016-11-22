@@ -12,7 +12,7 @@ Dibuat oleh:
 
 ## Cara kompilasi & menjalankan program
 
-Pre-requisite untuk kompilasi: GCC, GNU Make
+Pre-requisite: GCC, GNU Make
 Pre-requisite untuk menghasilkan laporan: PDFLatex
 
 1. Masuk ke direktori utama program.
